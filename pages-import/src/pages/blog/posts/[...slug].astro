@@ -1,0 +1,47 @@
+---
+import Layout from "@layouts/Layout.astro";
+import { postSlugFromPath } from "src/postApi";
+
+export async function getStaticPaths() {
+  const posts = await Astro.glob('../../../posts/*.md');
+
+  return posts.map((post) => {
+    const slug = postSlugFromPath(post.file);
+    return {
+      params:{ slug },
+      props: { post }
+    };
+  });
+}
+
+const { frontmatter, Content } = Astro.props.post;
+const title = frontmatter.title;
+const publishedDate = frontmatter.publishedDate;
+---
+
+<Layout title={title}>
+  <main>
+    <h1>{title} <small class="text-gradient">{publishedDate}</small></h1>
+    <article class="instructions">
+      <Content />
+    </article>
+  </main>
+</Layout>
+
+<style>
+  .text-gradient {
+    background-image: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 400%;
+    background-position: 0%;
+  }
+  .instructions {
+    line-height: 1.6;
+    margin: 1rem 0;
+    border: 1px solid rgba(var(--accent), 25%);
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.4rem;
+  }
+</style>

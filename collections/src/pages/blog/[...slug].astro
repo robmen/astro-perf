@@ -1,0 +1,47 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@layouts/Layout.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+
+  return posts.map((post) => {
+    return {
+      params:{ slug: post.slug },
+      props: { post }
+    };
+  });
+}
+
+const post = Astro.props.post;
+const { injectedFrontmatter, Content } = await post.render();
+const title = post.data.title ?? injectedFrontmatter.title;
+const publishedDate = post.data.publishedDate ?? injectedFrontmatter.publishedDate;
+---
+
+<Layout title={title}>
+  <main>
+    <h1>{title} <small class="text-gradient">{publishedDate}</small></h1>
+    <article class="instructions">
+      <Content />
+    </article>
+  </main>
+</Layout>
+
+<style>
+  .text-gradient {
+    background-image: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 400%;
+    background-position: 0%;
+  }
+  .instructions {
+    line-height: 1.6;
+    margin: 1rem 0;
+    border: 1px solid rgba(var(--accent), 25%);
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.4rem;
+  }
+</style>
